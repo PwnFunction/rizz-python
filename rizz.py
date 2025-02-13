@@ -27,20 +27,35 @@ def wrap_exec(encoded_string_len, encoded_python_string):
 
 def main():
     parser = argparse.ArgumentParser(description='Python Code Rizzler')
-    parser.add_argument('-r', '--run', action='store_true', help='Execute the generated code')
-    parser.add_argument('-c', '--code', type=str, default='print("Hello, World!")', 
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument('-c', '--code', type=str, default='print("Hello, World!")',
                         help='Python code to glow up (default: print("Hello, World!"))')
+    group.add_argument('-i', '--input', type=str, help='Python file to obfuscate')
 
+    parser.add_argument('-r', '--run', action='store_true', help='Execute the generated code')
+    parser.add_argument('-o', '--output', type=str, help='Save the obfuscated code to a file')
+    
     args = parser.parse_args()
 
+    if args.input:
+        with open(args.input, 'r', encoding='utf-8') as f:
+            code_to_obfuscate = f.read()
+    else:
+        code_to_obfuscate = args.code
+
     # Generate obfuscated code
-    encoded_python_string = [codegen(get_binary_factors(ord(char))) for char in args.code]
-    encoded_string_len = codegen(get_binary_factors(len(args.code)))
-    
+    encoded_python_string = [codegen(get_binary_factors(ord(char))) for char in code_to_obfuscate]
+    encoded_string_len = codegen(get_binary_factors(len(code_to_obfuscate)))
+
     generated_code = init_code()
     generated_code += wrap_exec(encoded_string_len, encoded_python_string)
     
-    print(generated_code)
+    if args.output:
+        with open(args.output, 'w', encoding='utf-8') as f:
+            f.write(generated_code)
+        print(f"Obfuscated code saved to {args.output}")
+    else:
+        print(generated_code)
     
     if args.run:
         exec(generated_code)
