@@ -4,7 +4,7 @@ import argparse
 def init_code():
     """Returns the initial code for the compiler"""
     code = """_=+([]==[]);"""
-    for i in range(2, 9 + 1):
+    for i in range(2, 15):
         code += f"{'_'*i}={'_'*(i-1)}+_;"
     return code
 
